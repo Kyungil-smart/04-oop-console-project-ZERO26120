@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\dltmd\\OneDrive\\문서\\TextRPG\\TextRpg\\TextRpg.csproj",
+      "projectUniqueName": "C:\\Users\\dltmd\\OneDrive\\문서\\GitHub\\04-oop-console-project-ZERO26120\\TextRpg\\TextRpg\\TextRpg.csproj",
       "projectName": "TextRpg",
-      "projectPath": "C:\\Users\\dltmd\\OneDrive\\문서\\TextRPG\\TextRpg\\TextRpg.csproj",
+      "projectPath": "C:\\Users\\dltmd\\OneDrive\\문서\\GitHub\\04-oop-console-project-ZERO26120\\TextRpg\\TextRpg\\TextRpg.csproj",
       "packagesPath": "C:\\Users\\dltmd\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\dltmd\\OneDrive\\문서\\TextRPG\\TextRpg\\obj\\",
+      "outputPath": "C:\\Users\\dltmd\\OneDrive\\문서\\GitHub\\04-oop-console-project-ZERO26120\\TextRpg\\TextRpg\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
