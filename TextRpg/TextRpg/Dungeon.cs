@@ -25,17 +25,13 @@ static class Dungeon
                         return;
                     }
                 }
-
-                Console.WriteLine("휴식 후 던전 계속 진행 가능");
                 player.Rest();
             }
             else
             {
                 Boss boss = new Boss();
                 BattleSystem.Start(player, boss);
-                // 보스 격파 후 타이틀로 복귀
-                Program.TitleMenu();
-                return;
+                Program.ShowTitle(); // 보스 격파 후 타이틀 복귀
             }
         }
     }

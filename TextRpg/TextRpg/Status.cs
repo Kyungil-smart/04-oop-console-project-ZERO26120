@@ -13,11 +13,6 @@ class Status
 
     public int GetDamage()
     {
-        switch (Effect)
-        {
-            case StatusEffect.Burn: return 5;
-            case StatusEffect.Poison: return 4;
-            default: return 0;
-        }
+        return Effect == StatusEffect.Burn ? 5 : 4;
     }
 }

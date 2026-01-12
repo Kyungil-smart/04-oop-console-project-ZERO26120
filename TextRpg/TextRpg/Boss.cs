@@ -2,14 +2,14 @@
 {
     public Boss() : base("드래곤", 200, 18, 180) { }
 
-    public void FireBreath(Player player)
+    public void FireBreath(Player p)
     {
-        player.Hp -= 22;
-        player.Statuses.Add(new Status(StatusEffect.Burn, 3));
+        p.Hp -= 22;
+        p.Statuses.Add(new Status(StatusEffect.Burn, 3));
     }
 
-    public void DarkStrike(Player player)
+    public void DarkStrike(Player p)
     {
-        player.Hp -= 18;
+        p.Hp -= 18;
     }
 }
