@@ -21,7 +21,9 @@ static class Town
             else if (key == ConsoleKey.Enter)
             {
                 if (index == 0)
+                {
                     Dungeon.Start(player);
+                }
                 else
                 {
                     player.Rest();

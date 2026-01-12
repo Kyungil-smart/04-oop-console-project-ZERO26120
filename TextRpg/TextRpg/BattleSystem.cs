@@ -4,137 +4,176 @@ using System.Collections.Generic;
 static class BattleSystem
 {
     static Random r = new Random();
-    static int logHeight = 10;
 
-    public static bool Start(Player player, Enemy enemy)
+    const int LogHeight = 10;
+
+    const int RowPlayer = 0;
+    const int RowEnemy  = 1;
+    const int RowLog    = 2;
+    const int RowMenu   = 12;
+
+    public static bool Start(Player player, Enemy enemy, int floor, int fightIndex, int fightsThisFloor)
     {
-        List<string> battleLog = new List<string>();
-        int turn = 1;
+        var log = new List<string>();
+        AddLog(log, $"=== {floor}층 전투 {fightIndex}/{fightsThisFloor} 시작 ===");
 
         while (player.Hp > 0 && enemy.Hp > 0)
         {
-            Console.Clear();
-            DrawBattleStatus(player, enemy, battleLog, turn);
+            ApplyStatus(player.Statuses, isPlayer: true, player: player, enemy: null, log: log);
+            if (player.Hp <= 0) break;
 
-            // 플레이어 턴
-            ProcessStatus(player, battleLog);
+            Render(player, enemy, log);
 
-            string[] actions = { "공격", "스킬", "도망" };
-            int actionIndex = SelectMenu(actions, 15);
+            string[] actions = { "공격", "스킬", "도주" };
+            int actionIndex = SelectMenu(actions, RowMenu);
 
-            if (actionIndex == 0) PlayerAttack(player, enemy, battleLog);
-            else if (actionIndex == 1) PlayerUseSkill(player, enemy, battleLog);
-            else if (actionIndex == 2)
+            if (actionIndex == 0)
+            {
+                PlayerAttack(player, enemy, log);
+            }
+            else if (actionIndex == 1)
+            {
+                PlayerUseSkill(player, enemy, log);
+            }
+            else
             {
                 if (r.Next(100) < 30)
                 {
-                    Console.WriteLine("도망 성공! 마을로 복귀...");
+                    AddLog(log, "도주 성공!");
+                    Render(player, enemy, log);
                     Console.ReadKey(true);
                     return true;
                 }
-                battleLog.Add("도망 실패!");
+                AddLog(log, "도주 실패!");
             }
 
-            if (enemy.Hp <= 0)
-            {
-                battleLog.Add($"{enemy.Name} 처치!");
-                DrawBattleStatus(player, enemy, battleLog, turn);
-                Console.ReadKey(true);
-                break;
-            }
+            if (enemy.Hp <= 0) break;
 
-            // 몬스터 턴
-            ProcessStatus(enemy, battleLog);
-            MonsterAction(player, enemy, battleLog);
+            ApplyStatus(enemy.Statuses, isPlayer: false, player: null, enemy: enemy, log: log);
+            if (enemy.Hp <= 0) break;
 
-            turn++;
+            MonsterAction(player, enemy, log);
         }
 
         if (player.Hp <= 0)
         {
-            Console.WriteLine("\n패배...");
+            Console.Clear();
+            Console.WriteLine("패배...");
             Environment.Exit(0);
         }
 
-        player.GainExp(enemy.Exp);
+        if (enemy.Hp <= 0)
+        {
+            enemy.Hp = 0;
+            AddLog(log, $"{enemy.Name} 처치!");
+            player.GainExp(enemy.Exp, log);
+            Render(player, enemy, log);
+            Console.ReadKey(true);
+        }
 
         return false;
+    }
+
+    static void Render(Player player, Enemy enemy, List<string> log)
+    {
+        int width = SafeWidth();
+        Console.Clear();
+
+        WriteLineAt(RowPlayer, $"플레이어: {player.Name}  HP: {player.Hp}/{player.MaxHp}  ATK: {player.Attack}", width);
+        WriteLineAt(RowEnemy,  $"{enemy.Name}  HP: {enemy.Hp}/{enemy.MaxHp}", width);
+
+        int start = Math.Max(0, log.Count - LogHeight);
+        for (int i = 0; i < LogHeight; i++)
+        {
+            int row = RowLog + i;
+            if (start + i < log.Count) WriteLineAt(row, log[start + i], width);
+            else WriteLineAt(row, "", width);
+        }
+
+        for (int i = 0; i < 3; i++)
+            WriteLineAt(RowMenu + i, "", width);
     }
 
     static int SelectMenu(string[] options, int startRow)
     {
         int index = 0;
+        int width = SafeWidth();
+
         while (true)
         {
             for (int i = 0; i < options.Length; i++)
             {
-                Console.SetCursorPosition(0, startRow + i);
-                Console.Write(i == index ? $"> {options[i]}" : $"  {options[i]}");
-                Console.Write(new string(' ', Console.WindowWidth - options[i].Length - 2));
+                string line = (i == index) ? $"> {options[i]}" : $"  {options[i]}";
+                WriteLineAt(startRow + i, line, width);
             }
 
             var key = Console.ReadKey(true).Key;
             if (key == ConsoleKey.UpArrow) index = (index - 1 + options.Length) % options.Length;
-            else if (key == ConsoleKey.DownArrow) index = (index + 1) % options.Length;
+            else if (key == ConsoleKey.DownArrow) index = (index + 1 + options.Length) % options.Length;
             else if (key == ConsoleKey.Enter) return index;
         }
-    }
-
-    static void DrawBattleStatus(Player player, Enemy enemy, List<string> log, int turn)
-    {
-        Console.SetCursorPosition(0, 0);
-        Console.WriteLine($"플레이어 HP: {player.Hp}/{player.MaxHp}");
-        Console.WriteLine($"{enemy.Name} HP: {enemy.Hp}");
-        Console.WriteLine("\n--- 전투 로그 ---");
-
-        int start = Math.Max(0, log.Count - logHeight);
-        for (int i = start; i < log.Count; i++)
-            Console.WriteLine(log[i]);
-        for (int i = log.Count; i < logHeight; i++)
-            Console.WriteLine(new string(' ', Console.WindowWidth));
-
-        Console.WriteLine($"\n--- TURN {turn} ---");
     }
 
     static void PlayerAttack(Player player, Enemy enemy, List<string> log)
     {
         int dmg = player.TotalAttack();
         enemy.Hp -= dmg;
-        log.Add($"플레이어 일반 공격! -{dmg} 피해");
+        AddLog(log, $"플레이어 기본 공격! -{dmg} 피해");
     }
 
     static void PlayerUseSkill(Player player, Enemy enemy, List<string> log)
     {
-        int skillIndex = 0;
+        int width = SafeWidth();
+        int index = 0;
+        int menuTop = RowMenu;
+
         while (true)
         {
-            Console.SetCursorPosition(0, 15);
-            Console.WriteLine("스킬 선택:");
-            for (int i = 0; i < player.Skills.Count; i++)
-                Console.WriteLine(i == skillIndex ? $"> {player.Skills[i].Name} ({player.Skills[i].PP}/{player.Skills[i].MaxPP})"
-                                                 : $"  {player.Skills[i].Name} ({player.Skills[i].PP}/{player.Skills[i].MaxPP})");
+            int lines = 1 + player.Skills.Count;
 
-            var k = Console.ReadKey(true).Key;
-            if (k == ConsoleKey.UpArrow) skillIndex = (skillIndex - 1 + player.Skills.Count) % player.Skills.Count;
-            else if (k == ConsoleKey.DownArrow) skillIndex = (skillIndex + 1) % player.Skills.Count;
-            else if (k == ConsoleKey.Enter)
+            for (int i = 0; i < lines; i++)
+                WriteLineAt(menuTop + i, "", width);
+
+            WriteLineAt(menuTop, "스킬 선택:", width);
+
+            for (int i = 0; i < player.Skills.Count; i++)
             {
-                Skill sk = player.Skills[skillIndex];
-                if (sk.PP <= 0) log.Add("PP 부족!");
+                Skill sk = player.Skills[i];
+                string line = (i == index)
+                    ? $"> {sk.Name} ({sk.PP}/{sk.MaxPP})"
+                    : $"  {sk.Name} ({sk.PP}/{sk.MaxPP})";
+                WriteLineAt(menuTop + 1 + i, line, width);
+            }
+
+            var key = Console.ReadKey(true).Key;
+            if (key == ConsoleKey.UpArrow) index = (index - 1 + player.Skills.Count) % player.Skills.Count;
+            else if (key == ConsoleKey.DownArrow) index = (index + 1) % player.Skills.Count;
+            else if (key == ConsoleKey.Enter)
+            {
+                Skill sk = player.Skills[index];
+
+                if (sk.PP <= 0)
+                {
+                    AddLog(log, "PP 부족!");
+                }
                 else
                 {
                     sk.PP--;
                     int dmg = (int)(player.TotalAttack() * sk.Rate);
                     enemy.Hp -= dmg;
-                    log.Add($"플레이어가 {sk.Name} 사용! 적에게 {dmg} 피해");
+                    AddLog(log, $"플레이어가 {sk.Name} 사용! -{dmg} 피해");
 
                     if (sk.Effect != null && r.Next(100) < sk.Chance)
                     {
                         enemy.Statuses.Add(new Status(sk.Effect.Value, 3));
-                        log.Add($"{enemy.Name} 상태이상! {sk.Effect}");
+                        AddLog(log, $"{enemy.Name} 상태이상! {sk.Effect}");
                     }
                 }
-                break;
+
+                for (int i = 0; i < lines; i++)
+                    WriteLineAt(menuTop + i, "", width);
+
+                return;
             }
         }
     }
@@ -146,33 +185,52 @@ static class BattleSystem
             if (r.Next(100) < 40)
             {
                 b.FireBreath(player);
-                log.Add("드래곤 화염 브레스!");
+                AddLog(log, "드래곤 화염 브레스!");
             }
             else
             {
                 b.DarkStrike(player);
-                log.Add("드래곤 암흑 타격!");
+                AddLog(log, "드래곤 피어!");
             }
         }
         else
         {
             player.Hp -= enemy.Attack;
-            log.Add($"{enemy.Name} 공격 -{enemy.Attack}");
+            AddLog(log, $"{enemy.Name} 공격 -{enemy.Attack}");
         }
     }
 
-    static void ProcessStatus(object target, List<string> log)
+    static void ApplyStatus(List<Status> statuses, bool isPlayer, Player player, Enemy enemy, List<string> log)
     {
-        var list = target is Player p ? p.Statuses : ((Enemy)target).Statuses;
-        for (int i = list.Count - 1; i >= 0; i--)
+        for (int i = statuses.Count - 1; i >= 0; i--)
         {
-            var s = list[i];
+            Status s = statuses[i];
             int dmg = s.GetDamage();
-            if (target is Player p1) p1.Hp -= dmg;
-            else ((Enemy)target).Hp -= dmg;
-            log.Add($"{s.Effect} 피해 -{dmg}");
+
+            if (isPlayer) player.Hp -= dmg;
+            else enemy.Hp -= dmg;
+
+            AddLog(log, $"{s.Effect} 피해 -{dmg}");
+
             s.Turns--;
-            if (s.Turns <= 0) list.RemoveAt(i);
+            if (s.Turns <= 0) statuses.RemoveAt(i);
         }
+    }
+
+    static void AddLog(List<string> log, string msg)
+    {
+        log.Add(msg);
+        if (log.Count > 200) log.RemoveAt(0);
+    }
+
+    static void WriteLineAt(int row, string text, int width)
+    {
+        Console.SetCursorPosition(0, row);
+        Console.Write(text.PadRight(width));
+    }
+
+    static int SafeWidth()
+    {
+        return Math.Max(1, Console.WindowWidth);
     }
 }

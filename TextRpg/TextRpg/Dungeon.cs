@@ -8,32 +8,65 @@ static class Dungeon
     {
         for (int floor = 1; floor <= 5; floor++)
         {
-            Console.Clear();
-            Console.WriteLine($"\n=== {floor}층 ===");
+            int fightsThisFloor = (floor < 5) ? 4 : 1;
+
+            for (int fight = 1; fight <= fightsThisFloor; fight++)
+            {
+                Enemy enemy = (floor < 5) ? CreateEnemy() : new Boss();
+
+                bool ranAway = BattleSystem.Start(player, enemy, floor, fight, fightsThisFloor);
+                if (ranAway)
+                {
+                    Town.Enter(player);
+                    return;
+                }
+            }
 
             if (floor < 5)
             {
-                for (int i = 0; i < 4; i++)
+                int choice = FloorClearMenu(floor);
+                if (choice == 0)
                 {
-                    Enemy enemy = CreateEnemy();
-                    bool ranAway = BattleSystem.Start(player, enemy);
-                    if (ranAway)
-                    {
-                        Town.Enter(player);
-                        return;
-                    }
+                    player.Rest();
+                    Console.Clear();
+                    Console.WriteLine($"=== {floor}층 클리어 ===\n체력과 스킬 회복 완료!");
+                    Console.ReadKey(true);
                 }
-                Console.WriteLine("휴식 후 던전 계속 진행 가능");
-                player.Rest();
+                else
+                {
+                    Town.Enter(player);
+                    return;
+                }
             }
             else
             {
-                Boss boss = new Boss();
-                BattleSystem.Start(player, boss);
+                Console.Clear();
                 Console.WriteLine("보스를 처치했습니다! 타이틀로 복귀...");
                 Console.ReadKey(true);
                 Program.ShowTitle();
+                return;
             }
+        }
+    }
+
+    static int FloorClearMenu(int floor)
+    {
+        string[] options = { "휴식", "마을로 복귀" };
+        int index = 0;
+
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine($"=== {floor}층 클리어 ===\n");
+            Console.WriteLine("다음 행동을 선택하세요.\n");
+
+            for (int i = 0; i < options.Length; i++)
+                Console.WriteLine(i == index ? $"> {options[i]}" : $"  {options[i]}");
+
+            var key = Console.ReadKey(true).Key;
+            if (key == ConsoleKey.UpArrow) index = (index - 1 + options.Length) % options.Length;
+            else if (key == ConsoleKey.DownArrow) index = (index + 1) % options.Length;
+            else if (key == ConsoleKey.Enter) return index;
         }
     }
 
