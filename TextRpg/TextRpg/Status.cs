@@ -10,4 +10,9 @@ class Status
         Effect = e;
         Turns = t;
     }
+
+    public int GetDamage()
+    {
+        return Effect == StatusEffect.Burn ? 6 : 4;
+    }
 }

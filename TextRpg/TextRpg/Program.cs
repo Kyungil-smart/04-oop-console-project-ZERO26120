@@ -4,32 +4,27 @@ class Program
 {
     static void Main()
     {
-        while (true)
+        while(true)
         {
-            int sel = Title();
-
-            if (sel == 0)
+            int sel=Title();
+            if(sel==0)
             {
-                Player p = new Player();
-                Dungeon.Start(p);
+                Player p=JobSelect();
+                Town.Enter(p);
             }
-            else
-            {
-                Environment.Exit(0);
-            }
+            else break;
         }
     }
 
     static int Title()
     {
-        string[] menu = { "게임 시작", "종료" };
-        int index = 0;
+        string[] menu={ "게임 시작","게임 종료" };
+        int index=0;
 
-        while (true)
+        while(true)
         {
             Console.Clear();
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor=ConsoleColor.Yellow;
             Console.WriteLine(@"
  ████████╗██████╗ ███████╗████████╗
  ╚══██╔══╝██╔══██╗██╔════╝╚══██╔══╝
@@ -47,34 +42,31 @@ class Program
 ");
             Console.ResetColor();
 
-            Console.WriteLine();
-
-            for (int i = 0; i < menu.Length; i++)
+            for(int i=0;i<menu.Length;i++)
             {
-                if (i == index)
-                {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine($"> {menu[i]}");
-                    Console.ResetColor();
-                }
-                else
-                {
-                    Console.WriteLine($"  {menu[i]}");
-                }
+                if(i==index)
+                { Console.ForegroundColor=ConsoleColor.Cyan; Console.WriteLine($"> {menu[i]}"); Console.ResetColor(); }
+                else Console.WriteLine($"  {menu[i]}");
             }
 
             Console.WriteLine("\n↑ ↓ 이동  Enter 선택");
-
-            ConsoleKey key = Console.ReadKey(true).Key;
-
-            if (key == ConsoleKey.UpArrow) index--;
-            if (key == ConsoleKey.DownArrow) index++;
-
-            if (index < 0) index = menu.Length - 1;
-            if (index >= menu.Length) index = 0;
-
-            if (key == ConsoleKey.Enter)
-                return index;
+            var key=Console.ReadKey(true).Key;
+            if(key==ConsoleKey.UpArrow) index--;
+            if(key==ConsoleKey.DownArrow) index++;
+            if(index<0) index=menu.Length-1;
+            if(index>=menu.Length) index=0;
+            if(key==ConsoleKey.Enter) return index;
         }
+    }
+
+    static Player JobSelect()
+    {
+        Console.Clear();
+        Console.WriteLine("직업 선택:");
+        Console.WriteLine("1. 전사  2. 마법사");
+
+        ConsoleKeyInfo key = Console.ReadKey(true);
+        if(key.KeyChar=='2') return new Player(PlayerJob.Mage);
+        return new Player(PlayerJob.Warrior);
     }
 }
