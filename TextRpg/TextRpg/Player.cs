@@ -1,54 +1,61 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 class Player
 {
-    public string Name;
-    public PlayerJob Job;
-    public int Level = 1;
-    public int MaxHp = 110;
-    public int Hp = 110;
-    public int Attack = 11;
-    public int Exp = 0;
-
-    public Equipment Weapon;
-    public List<Equipment> Inventory = new List<Equipment>();
+    public string Name { get; private set; }
+    public PlayerJob Job { get; private set; }
+    public int Hp, MaxHp;
+    public int Attack;
+    public int Exp;
+    public int Level;
+    public List<Skill> Skills = new List<Skill>();
     public List<Status> Statuses = new List<Status>();
-    public Skill[] Skills = new Skill[4];
 
     public Player(PlayerJob job)
     {
         Job = job;
+        Level = 1;
+        Exp = 0;
+
         if (job == PlayerJob.Warrior)
         {
-            Skills[0] = new Skill("베기", 1.2f, null, 0, 15);
-            Skills[1] = new Skill("강타", 1.6f, null, 0, 5);
-            Skills[2] = new Skill("화염 타격", 1.3f, StatusEffect.Burn, 35, 10);
-            Skills[3] = new Skill("독 찌르기", 1.0f, StatusEffect.Poison, 40, 10);
+            Name = "전사";
+            MaxHp = Hp = 110;
+            Attack = 10;
+            Skills.Add(new Skill("베기", 1.2, 15));
+            Skills.Add(new Skill("강타", 1.5, 5));
+            Skills.Add(new Skill("화염 타격", 1.8, 10, StatusEffect.Burn, 30));
+            Skills.Add(new Skill("독 찌르기", 1.4, 10, StatusEffect.Poison, 40));
         }
         else
         {
-            Skills[0] = new Skill("마법 미사일", 1.2f, null, 0, 15);
-            Skills[1] = new Skill("파이어볼", 1.5f, StatusEffect.Burn, 30, 10);
-            Skills[2] = new Skill("아이스 샷", 1.3f, null, 0, 10);
-            Skills[3] = new Skill("독 마법", 1.0f, StatusEffect.Poison, 40, 10);
+            Name = "마법사";
+            MaxHp = Hp = 80;
+            Attack = 12;
+            Skills.Add(new Skill("파이어볼", 1.5, 15, StatusEffect.Burn, 40));
+            Skills.Add(new Skill("매직 미사일", 1.3, 10));
+            Skills.Add(new Skill("독 마법", 1.2, 10, StatusEffect.Poison, 50));
+            Skills.Add(new Skill("마법 폭발", 1.8, 5));
         }
     }
 
     public int TotalAttack()
     {
-        return Attack + (Weapon != null ? Weapon.Attack : 0);
+        return Attack;
     }
 
-    public void GainExp(int exp)
+    public void GainExp(int amount)
     {
-        Exp += exp;
+        Exp += amount;
         if (Exp >= 100)
         {
-            Exp -= 100;
             Level++;
-            MaxHp += 12;
-            Attack += 3;
+            Exp -= 100;
+            MaxHp += 10;
             Hp = MaxHp;
+            Attack += 2;
+            Console.WriteLine($"{Name} 레벨업! 현재 Lv.{Level}");
         }
     }
 

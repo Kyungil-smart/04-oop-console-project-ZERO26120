@@ -3,16 +3,14 @@
 class Enemy
 {
     public string Name;
-    public int Hp;
-    public int Attack;
-    public int Exp;
+    public int Hp, Attack, Exp;
     public List<Status> Statuses = new List<Status>();
 
-    public Enemy(string name, int hp, int attack, int exp)
+    public Enemy(string name, int hp, int atk, int exp)
     {
         Name = name;
         Hp = hp;
-        Attack = attack;
+        Attack = atk;
         Exp = exp;
     }
 }

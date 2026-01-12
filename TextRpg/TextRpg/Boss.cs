@@ -1,6 +1,6 @@
 ﻿class Boss : Enemy
 {
-    public Boss() : base("드래곤", 200, 18, 180) { }
+    public Boss() : base("드래곤", 200, 20, 180) { }
 
     public void FireBreath(Player p)
     {

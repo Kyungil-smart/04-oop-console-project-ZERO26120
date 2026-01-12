@@ -2,6 +2,8 @@
 
 class Program
 {
+    static Player player;
+
     static void Main()
     {
         ShowTitle();
@@ -13,49 +15,33 @@ class Program
         int index = 0;
         ConsoleKey key;
 
-        while (true)
+        do
         {
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(@"
- ████████╗██████╗ ███████╗████████╗
- ╚══██╔══╝██╔══██╗██╔════╝╚══██╔══╝
-    ██║   ██████╔╝█████╗     ██║   
-    ██║   ██╔══██╗██╔══╝     ██║   
-    ██║   ██║  ██║███████╗   ██║   
-    ╚═╝   ╚═╝  ╚══════╝   ╚═╝   
-
+$$$$$$$\  $$$$$$$\   $$$$$$\  
+$$  __$$\ $$  __$$\ $$  __$$\ 
+$$ |  $$ |$$ |  $$ |$$ /  \__|
+$$$$$$$  |$$$$$$$  |$$ |$$$$\ 
+$$  __$$< $$  ____/ $$ |\_$$ |
+$$ |  $$ |$$ |      $$ |  $$ |
+$$ |  $$ |$$ |      \$$$$$$  |
+\__|  \__|\__|       \______/ 
 ");
-            Console.ResetColor();
 
             for (int i = 0; i < menu.Length; i++)
-            {
-                if (i == index)
-                {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine($"> {menu[i]}");
-                    Console.ResetColor();
-                }
-                else
-                {
-                    Console.WriteLine($"  {menu[i]}");
-                }
-            }
+                Console.WriteLine(i == index ? $"> {menu[i]}" : $"  {menu[i]}");
 
-            Console.WriteLine("\n↑↓ 방향키 선택, Enter 결정");
+            Console.WriteLine("\n방향키 ↑↓로 선택, Enter로 결정");
 
             key = Console.ReadKey(true).Key;
-            if (key == ConsoleKey.UpArrow) index--;
-            if (key == ConsoleKey.DownArrow) index++;
-            if (index < 0) index = menu.Length - 1;
-            if (index >= menu.Length) index = 0;
+            if (key == ConsoleKey.UpArrow) index = (index - 1 + menu.Length) % menu.Length;
+            if (key == ConsoleKey.DownArrow) index = (index + 1) % menu.Length;
 
-            if (key == ConsoleKey.Enter)
-            {
-                if (index == 0) SelectJob();
-                else Environment.Exit(0);
-            }
-        }
+        } while (key != ConsoleKey.Enter);
+
+        if (index == 0) SelectJob();
+        else Environment.Exit(0);
     }
 
     static void SelectJob()
@@ -64,38 +50,24 @@ class Program
         int index = 0;
         ConsoleKey key;
 
-        while (true)
+        do
         {
             Console.Clear();
             Console.WriteLine("직업 선택");
 
             for (int i = 0; i < jobs.Length; i++)
-            {
-                if (i == index)
-                {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine($"> {jobs[i]}");
-                    Console.ResetColor();
-                }
-                else
-                {
-                    Console.WriteLine($"  {jobs[i]}");
-                }
-            }
+                Console.WriteLine(i == index ? $"> {jobs[i]}" : $"  {jobs[i]}");
+
+            Console.WriteLine("\n방향키 ↑↓로 선택, Enter로 결정");
 
             key = Console.ReadKey(true).Key;
-            if (key == ConsoleKey.UpArrow) index--;
-            if (key == ConsoleKey.DownArrow) index++;
-            if (index < 0) index = jobs.Length - 1;
-            if (index >= jobs.Length) index = 0;
+            if (key == ConsoleKey.UpArrow) index = (index - 1 + jobs.Length) % jobs.Length;
+            if (key == ConsoleKey.DownArrow) index = (index + 1) % jobs.Length;
 
-            if (key == ConsoleKey.Enter)
-            {
-                PlayerJob job = index == 0 ? PlayerJob.Warrior : PlayerJob.Mage;
-                Player player = new Player(job);
-                Town.Enter(player);
-                return;
-            }
-        }
+        } while (key != ConsoleKey.Enter);
+
+        PlayerJob job = index == 0 ? PlayerJob.Warrior : PlayerJob.Mage;
+        player = new Player(job);
+        Town.Enter(player);
     }
 }

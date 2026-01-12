@@ -1,18 +1,21 @@
-﻿enum StatusEffect { Burn, Poison }
-
-class Status
+﻿class Status
 {
     public StatusEffect Effect;
     public int Turns;
 
-    public Status(StatusEffect effect, int turns)
+    public Status(StatusEffect eff, int t)
     {
-        Effect = effect;
-        Turns = turns;
+        Effect = eff;
+        Turns = t;
     }
 
     public int GetDamage()
     {
-        return Effect == StatusEffect.Burn ? 5 : 4;
+        return Effect switch
+        {
+            StatusEffect.Burn => 5,
+            StatusEffect.Poison => 4,
+            _ => 0
+        };
     }
 }

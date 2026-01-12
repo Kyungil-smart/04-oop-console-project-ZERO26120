@@ -9,9 +9,7 @@ static class Dungeon
         for (int floor = 1; floor <= 5; floor++)
         {
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"\n=== {floor}층 ===");
-            Console.ResetColor();
 
             if (floor < 5)
             {
@@ -25,13 +23,16 @@ static class Dungeon
                         return;
                     }
                 }
+                Console.WriteLine("휴식 후 던전 계속 진행 가능");
                 player.Rest();
             }
             else
             {
                 Boss boss = new Boss();
                 BattleSystem.Start(player, boss);
-                Program.ShowTitle(); // 보스 격파 후 타이틀 복귀
+                Console.WriteLine("보스를 처치했습니다! 타이틀로 복귀...");
+                Console.ReadKey(true);
+                Program.ShowTitle();
             }
         }
     }
@@ -39,16 +40,11 @@ static class Dungeon
     static Enemy CreateEnemy()
     {
         int n = r.Next(3);
-        if (n == 0) return new Enemy("슬라임", 28, 5, 30);
-        if (n == 1) return new Enemy("고블린", 38, 8, 40);
-        return new Enemy("늑대", 34, 7, 35);
-    }
-
-    public static string ColorText(string text, ConsoleColor color)
-    {
-        Console.ForegroundColor = color;
-        string t = text;
-        Console.ResetColor();
-        return t;
+        return n switch
+        {
+            0 => new Enemy("슬라임", 28, 5, 30),
+            1 => new Enemy("고블린", 38, 8, 40),
+            _ => new Enemy("늑대", 34, 7, 35)
+        };
     }
 }

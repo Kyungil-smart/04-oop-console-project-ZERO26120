@@ -4,23 +4,30 @@ static class Town
 {
     public static void Enter(Player player)
     {
+        string[] options = { "던전 입장", "휴식" };
+        int index = 0;
+
         while (true)
         {
-            string[] menu = { "던전 입장", "휴식" };
-            int choice = BattleSystem.SelectFromMenu(menu, "=== 마을 ===");
+            Console.Clear();
+            Console.WriteLine("=== 마을 ===\n");
 
-            if (choice == 0) // 던전 입장
+            for (int i = 0; i < options.Length; i++)
+                Console.WriteLine(i == index ? $"> {options[i]}" : $"  {options[i]}");
+
+            var key = Console.ReadKey(true).Key;
+            if (key == ConsoleKey.UpArrow) index = (index - 1 + options.Length) % options.Length;
+            else if (key == ConsoleKey.DownArrow) index = (index + 1) % options.Length;
+            else if (key == ConsoleKey.Enter)
             {
-                Dungeon.Start(player);
-                return;
-            }
-            else // 휴식
-            {
-                player.Rest();
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("체력과 스킬 PP 회복 완료!");
-                Console.ResetColor();
-                Console.ReadKey(true);
+                if (index == 0)
+                    Dungeon.Start(player);
+                else
+                {
+                    player.Rest();
+                    Console.WriteLine("체력과 스킬 회복 완료!");
+                    Console.ReadKey(true);
+                }
             }
         }
     }
