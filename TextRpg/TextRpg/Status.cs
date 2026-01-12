@@ -5,14 +5,19 @@ class Status
     public StatusEffect Effect;
     public int Turns;
 
-    public Status(StatusEffect e, int t)
+    public Status(StatusEffect effect, int turns)
     {
-        Effect = e;
-        Turns = t;
+        Effect = effect;
+        Turns = turns;
     }
 
     public int GetDamage()
     {
-        return Effect == StatusEffect.Burn ? 6 : 4;
+        switch (Effect)
+        {
+            case StatusEffect.Burn: return 5;
+            case StatusEffect.Poison: return 4;
+            default: return 0;
+        }
     }
 }

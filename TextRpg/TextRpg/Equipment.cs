@@ -3,9 +3,9 @@
     public string Name;
     public int Attack;
 
-    public Equipment(string n, int a)
+    public Equipment(string name, int attack)
     {
-        Name = n;
-        Attack = a;
+        Name = name;
+        Attack = attack;
     }
 }

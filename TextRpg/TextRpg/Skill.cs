@@ -7,13 +7,13 @@
     public int MaxPP;
     public int PP;
 
-    public Skill(string n, float r, StatusEffect? e, int c, int pp)
+    public Skill(string name, float rate, StatusEffect? effect, int chance, int maxPP)
     {
-        Name = n;
-        Rate = r;
-        Effect = e;
-        Chance = c;
-        MaxPP = pp;
-        PP = pp;
+        Name = name;
+        Rate = rate;
+        Effect = effect;
+        Chance = chance;
+        MaxPP = maxPP;
+        PP = maxPP;
     }
 }

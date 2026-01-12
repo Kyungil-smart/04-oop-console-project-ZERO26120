@@ -1,15 +1,15 @@
 ﻿class Boss : Enemy
 {
-    public Boss() : base("드래곤",200,18,180){}
+    public Boss() : base("드래곤", 200, 18, 180) { }
 
-    public void FireBreath(Player p)
+    public void FireBreath(Player player)
     {
-        p.Hp -= 22;
-        p.AddStatus(new Status(StatusEffect.Burn,3));
+        player.Hp -= 22;
+        player.Statuses.Add(new Status(StatusEffect.Burn, 3));
     }
 
-    public void DarkStrike(Player p)
+    public void DarkStrike(Player player)
     {
-        p.Hp -= 18;
+        player.Hp -= 18;
     }
 }

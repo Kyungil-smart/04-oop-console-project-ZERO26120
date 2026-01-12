@@ -4,61 +4,55 @@ static class Dungeon
 {
     static Random r = new Random();
 
-    public static void Start(Player p)
+    public static void Start(Player player)
     {
-        for(int floor=1;floor<=5;floor++)
+        for (int floor = 1; floor <= 5; floor++)
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"\n=== {floor}층 ===");
             Console.ResetColor();
 
-            Console.WriteLine("1. 주변 탐색  2. 복귀");
-            ConsoleKeyInfo key = Console.ReadKey(true);
-            string sel = key.KeyChar.ToString();
-
-            if(sel=="2")
+            if (floor < 5)
             {
-                Console.WriteLine("마을로 복귀합니다...");
-                Console.ReadKey();
-                Town.Enter(p);
-                return;
-            }
-
-            // 조우 확률
-            if(r.Next(100)<70)
-            {
-                bool escape = BattleSystem.Start(p,CreateEnemy());
-                if(escape)
+                for (int i = 0; i < 4; i++)
                 {
-                    Town.Enter(p);
-                    return;
+                    Enemy enemy = CreateEnemy();
+                    bool ranAway = BattleSystem.Start(player, enemy);
+                    if (ranAway)
+                    {
+                        Town.Enter(player);
+                        return;
+                    }
                 }
-            }
-            else
-            {
-                Console.WriteLine("주변에 적이 없습니다.");
-                Console.ReadKey();
-            }
 
-            if(floor<5)
-            {
-                Console.WriteLine("1. 휴식  2. 계속");
-                key = Console.ReadKey(true);
-                if(key.KeyChar.ToString()=="1") p.Rest();
+                Console.WriteLine("휴식 후 던전 계속 진행 가능");
+                player.Rest();
             }
             else
             {
-                BattleSystem.Start(p,new Boss());
+                Boss boss = new Boss();
+                BattleSystem.Start(player, boss);
+                // 보스 격파 후 타이틀로 복귀
+                Program.TitleMenu();
+                return;
             }
         }
     }
 
     static Enemy CreateEnemy()
     {
-        int n=r.Next(3);
-        if(n==0) return new Enemy("슬라임",28,5,30);
-        if(n==1) return new Enemy("고블린",38,8,40);
-        return new Enemy("늑대",34,7,35);
+        int n = r.Next(3);
+        if (n == 0) return new Enemy("슬라임", 28, 5, 30);
+        if (n == 1) return new Enemy("고블린", 38, 8, 40);
+        return new Enemy("늑대", 34, 7, 35);
+    }
+
+    public static string ColorText(string text, ConsoleColor color)
+    {
+        Console.ForegroundColor = color;
+        string t = text;
+        Console.ResetColor();
+        return t;
     }
 }

@@ -4,69 +4,92 @@ class Program
 {
     static void Main()
     {
-        while(true)
-        {
-            int sel=Title();
-            if(sel==0)
-            {
-                Player p=JobSelect();
-                Town.Enter(p);
-            }
-            else break;
-        }
+        TitleMenu();
     }
 
-    static int Title()
+    public static void TitleMenu()
     {
-        string[] menu={ "게임 시작","게임 종료" };
-        int index=0;
+        string[] options = { "게임 시작", "종료" };
+        int idx = 0;
+        ConsoleKey key;
 
-        while(true)
+        do
         {
             Console.Clear();
-            Console.ForegroundColor=ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(@"
  ████████╗██████╗ ███████╗████████╗
  ╚══██╔══╝██╔══██╗██╔════╝╚══██╔══╝
     ██║   ██████╔╝█████╗     ██║   
     ██║   ██╔══██╗██╔══╝     ██║   
     ██║   ██║  ██║███████╗   ██║   
-    ╚═╝   ╚═╝  ╚═╝╚══════╝   ╚═╝   
+    ╚═╝   ╚═╝  ╚══════╝   ╚═╝   
 
- ██████╗ ██████╗  ██████╗ 
- ██╔══██╗██╔══██╗██╔════╝ 
- ██████╔╝██████╔╝██║  ███╗
- ██╔══██╗██╔═══╝ ██║   ██║
- ██║  ██║██║     ╚██████╔╝
- ╚═╝  ╚═╝╚═╝      ╚═════╝ 
 ");
             Console.ResetColor();
 
-            for(int i=0;i<menu.Length;i++)
+            for (int i = 0; i < options.Length; i++)
             {
-                if(i==index)
-                { Console.ForegroundColor=ConsoleColor.Cyan; Console.WriteLine($"> {menu[i]}"); Console.ResetColor(); }
-                else Console.WriteLine($"  {menu[i]}");
+                if (i == idx)
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("> " + options[i]);
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.WriteLine("  " + options[i]);
+                }
             }
 
-            Console.WriteLine("\n↑ ↓ 이동  Enter 선택");
-            var key=Console.ReadKey(true).Key;
-            if(key==ConsoleKey.UpArrow) index--;
-            if(key==ConsoleKey.DownArrow) index++;
-            if(index<0) index=menu.Length-1;
-            if(index>=menu.Length) index=0;
-            if(key==ConsoleKey.Enter) return index;
+            key = Console.ReadKey(true).Key;
+
+            if (key == ConsoleKey.UpArrow) idx--;
+            if (key == ConsoleKey.DownArrow) idx++;
+            if (idx < 0) idx = options.Length - 1;
+            if (idx >= options.Length) idx = 0;
+
+        } while (key != ConsoleKey.Enter);
+
+        if (idx == 0)
+        {
+            // 직업 선택
+            string[] jobs = { "전사", "마법사" };
+            int jobIdx = 0;
+            ConsoleKey jkey;
+
+            do
+            {
+                Console.Clear();
+                Console.WriteLine("직업 선택\n");
+                for (int i = 0; i < jobs.Length; i++)
+                {
+                    if (i == jobIdx)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine("> " + jobs[i]);
+                        Console.ResetColor();
+                    }
+                    else
+                        Console.WriteLine("  " + jobs[i]);
+                }
+
+                jkey = Console.ReadKey(true).Key;
+                if (jkey == ConsoleKey.UpArrow) jobIdx--;
+                if (jkey == ConsoleKey.DownArrow) jobIdx++;
+                if (jobIdx < 0) jobIdx = jobs.Length - 1;
+                if (jobIdx >= jobs.Length) jobIdx = 0;
+
+            } while (jkey != ConsoleKey.Enter);
+
+            PlayerJob selectedJob = jobIdx == 0 ? PlayerJob.Warrior : PlayerJob.Mage;
+            Player player = new Player(selectedJob);
+
+            Town.Enter(player);
         }
-    }
-
-    static Player JobSelect()
-    {
-        Console.Clear();
-        Console.WriteLine("직업 선택:");
-        Console.WriteLine("1. 전사  2. 마법사");
-
-        ConsoleKeyInfo key = Console.ReadKey(true);
-        if(key.KeyChar=='2') return new Player(PlayerJob.Mage);
-        return new Player(PlayerJob.Warrior);
+        else
+        {
+            Environment.Exit(0);
+        }
     }
 }

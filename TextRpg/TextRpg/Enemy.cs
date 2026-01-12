@@ -8,11 +8,11 @@ class Enemy
     public int Exp;
     public List<Status> Statuses = new List<Status>();
 
-    public Enemy(string n,int h,int a,int e)
+    public Enemy(string name, int hp, int attack, int exp)
     {
-        Name=n;
-        Hp=h;
-        Attack=a;
-        Exp=e;
+        Name = name;
+        Hp = hp;
+        Attack = attack;
+        Exp = exp;
     }
 }
